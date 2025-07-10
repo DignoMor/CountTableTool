@@ -3,12 +3,15 @@
 import argparse
 
 from imputate import Imputate
+from col_ops import ColOps
 
 class CountTableTool:
     @staticmethod
     def main(args):
         if args.subcommand == "imputate":
             Imputate.main(args)
+        if args.subcommand == "col_ops":
+            ColOps.main(args)
         else:
             raise ValueError("Invalid subcommand.")
     
@@ -22,6 +25,13 @@ class CountTableTool:
         )
 
         Imputate.set_parser(parser_imputate)
+
+        parser_col_ops = subparsers.add_parser(
+            "col_ops",
+            help="Operate on columns of a count table.",
+        )
+
+        ColOps.set_parser(parser_col_ops)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog="Count Table Tool.")
