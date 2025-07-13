@@ -10,7 +10,7 @@ class CountTableTool:
     def main(args):
         if args.subcommand == "imputate":
             Imputate.main(args)
-        if args.subcommand == "col_ops":
+        elif args.subcommand == "col_ops":
             ColOps.main(args)
         else:
             raise ValueError("Invalid subcommand.")
