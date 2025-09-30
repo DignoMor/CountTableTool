@@ -5,6 +5,7 @@ import argparse
 from imputate import Imputate
 from col_ops import ColOps
 from export import CountTableExport
+from normalization import Normalization
 
 class CountTableTool:
     @staticmethod
@@ -15,6 +16,8 @@ class CountTableTool:
             ColOps.main(args)
         elif args.subcommand == "export":
             CountTableExport.main(args)
+        elif args.subcommand == "normalization":
+            Normalization.main(args)
         else:
             raise ValueError("Invalid subcommand.")
     
@@ -42,6 +45,13 @@ class CountTableTool:
         )
 
         CountTableExport.set_parser(parser_export)
+
+        parser_normalization = subparsers.add_parser(
+            "normalization",
+            help="Normalize a count table.",
+        )
+
+        Normalization.set_parser(parser_normalization)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog="Count Table Tool.")
