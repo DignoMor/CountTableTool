@@ -3,7 +3,7 @@ from CountTableIO import CountTableIO
 
 class Imputate:
     @staticmethod
-    def get_supported_impuatation_methods():
+    def get_supported_imputation_methods():
         return ["min"]
 
 
@@ -23,7 +23,7 @@ class Imputate:
         
         parser.add_argument("--method",
                             help="Imputation method to use. ",
-                            choices=Imputate.get_supported_impuatation_methods(),
+                            choices=Imputate.get_supported_imputation_methods(),
                             default="min",
                             dest="method",
                             )
