@@ -9,6 +9,7 @@ The tool is invoked via the main entry point in `CountTableTool.py` and exposes 
 - `col_ops`
 - `export`
 - `normalization`
+- `DE` 
 
 Each subcommand has its own dedicated page:
 
@@ -16,6 +17,7 @@ Each subcommand has its own dedicated page:
 - [Column operations (`col_ops`)](col_ops.md)
 - [Export](export.md)
 - [Normalization](normalization.md)
+- [Differential expression (`DE`)](de.md)
 
 Refer to those pages for detailed descriptions of options and usage examples.
 
