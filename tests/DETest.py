@@ -22,8 +22,8 @@ class DETest(unittest.TestCase):
         self.input_df = pd.DataFrame(
             {
                 "sampleA_1": [10.0, 1.0, 5.0],
-                "sampleA_2": [11.0, 2.0, 5.0],
-                "sampleB_1": [1.0, 10.0, 5.0],
+                "sampleA_2": [11.0, 2.0, 5.1],
+                "sampleB_1": [1.0, 10.0, 5.2],
                 "sampleB_2": [2.0, 11.0, 5.0],
             },
             index=["geneA", "geneB", "geneConst"],
@@ -39,42 +39,26 @@ class DETest(unittest.TestCase):
             subcommand="DE",
             de_method="tstat",
             inpath=self.input_path,
+            exp_label="A",
+            ctrl_label="B",
             tissue_labels="A,A,B,B",
-            missing="raise",
             opath=self.output_path,
         )
         CountTableTool.main(args)
 
         output_df = CountTableIO.read_input_df(self.output_path)
-        self.assertTrue((output_df.columns.values == np.array(["A", "B"])).all())
-        self.assertGreater(output_df.loc["geneA", "A"], 0)
-        self.assertLess(output_df.loc["geneA", "B"], 0)
-        self.assertLess(output_df.loc["geneB", "A"], 0)
-        self.assertGreater(output_df.loc["geneB", "B"], 0)
-        self.assertTrue(np.isnan(output_df.loc["geneConst", "A"]))
+        self.assertTrue((output_df.columns.values == np.array(["log2FC", "tstat", "pval", "padj"])).all())
+        self.assertTrue(output_df.loc["geneA", "log2FC"] > 0)
+        self.assertTrue(output_df.loc["geneA", "tstat"] > 0)
+        self.assertTrue(np.abs(output_df.loc["geneA", "pval"]) < 0.05)
+        self.assertTrue(np.abs(output_df.loc["geneA", "padj"]) < 0.05)
+        self.assertTrue(output_df.loc["geneB", "log2FC"] < 0)
+        self.assertTrue(output_df.loc["geneB", "tstat"] < 0)
+        self.assertTrue(np.abs(output_df.loc["geneB", "pval"]) < 0.05)
+        self.assertTrue(np.abs(output_df.loc["geneB", "padj"]) < 0.05)
+        self.assertTrue(np.abs(output_df.loc["geneConst", "padj"]) > 0.05)
 
-    def test_de_tstat_missing_drop(self):
-        input_with_nan_path = os.path.join(self.__test_path, "input_with_nan.tsv")
-        output_with_nan_path = os.path.join(self.__test_path, "output_with_nan.tsv")
-
-        input_with_nan = self.input_df.copy()
-        input_with_nan.loc["geneA", "sampleA_1"] = np.nan
-        CountTableIO.write_output_df(input_with_nan, input_with_nan_path)
-
-        args = argparse.Namespace(
-            subcommand="DE",
-            de_method="tstat",
-            inpath=input_with_nan_path,
-            tissue_labels="A,A,B,B",
-            missing="drop",
-            opath=output_with_nan_path,
-        )
-        CountTableTool.main(args)
-
-        output_df = CountTableIO.read_input_df(output_with_nan_path)
-        self.assertEqual(output_df.shape, (2, 2))
-
-    def test_de_tstat_missing_raise(self):
+    def test_de_tstat_nan_raises(self):
         input_with_nan_path = os.path.join(self.__test_path, "input_with_nan.tsv")
 
         input_with_nan = self.input_df.copy()
@@ -85,8 +69,9 @@ class DETest(unittest.TestCase):
             subcommand="DE",
             de_method="tstat",
             inpath=input_with_nan_path,
+            exp_label="A",
+            ctrl_label="B",
             tissue_labels="A,A,B,B",
-            missing="raise",
             opath=self.output_path,
         )
         with self.assertRaises(ValueError):
