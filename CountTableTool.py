@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 
 import argparse
+from importlib import import_module
 
 from imputate import Imputate
 from col_ops import ColOps
 from export import CountTableExport
 from normalization import Normalization
 from de import DE
+CountTableImport = import_module("import").CountTableImport
 
 class CountTableTool:
     @staticmethod
@@ -21,6 +23,8 @@ class CountTableTool:
             Normalization.main(args)
         elif args.subcommand == "DE":
             DE.main(args)
+        elif args.subcommand == "import":
+            CountTableImport.main(args)
         else:
             raise ValueError("Invalid subcommand.")
     
@@ -62,6 +66,13 @@ class CountTableTool:
         )
 
         DE.set_parser(parser_de)
+
+        parser_import = subparsers.add_parser(
+            "import",
+            help="Import count table data from external formats.",
+        )
+
+        CountTableImport.set_parser(parser_import)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog="Count Table Tool.")
