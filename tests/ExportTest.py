@@ -8,6 +8,7 @@ import numpy as np
 
 from RGTools.BedTable import BedTable3
 from RGTools.GenomicElements import GenomicElements
+from RGTools.ListFile import ListFile
 
 from export import CountTableExport
 from CountTableIO import CountTableIO
@@ -20,6 +21,8 @@ class ExportTest(unittest.TestCase):
 
         self.__test_count_table_path = os.path.join(self.__test_path, "test_count_table.tsv")
         self.__test_region_path = os.path.join(self.__test_path, "test_region.bed3")
+        self.__old_index_list_path = os.path.join(self.__test_path, "old_index_list.txt")
+        self.__new_index_list_path = os.path.join(self.__test_path, "new_index_list.txt")
 
         test_region = pd.DataFrame({
             "chrom": ["chr1"] * 100,
@@ -37,8 +40,14 @@ class ExportTest(unittest.TestCase):
                   "descending": np.arange(100, 0, -1), 
                   },
         )
+        self.test_count_table = test_count_table
 
         CountTableIO.write_output_df(test_count_table, self.__test_count_table_path)
+
+        old_index_names = test_count_table.index.tolist()
+        new_index_names = [f"renamed_{idx}" for idx in old_index_names]
+        ListFile.write_list_to_file(old_index_names, self.__old_index_list_path)
+        ListFile.write_list_to_file(new_index_names, self.__new_index_list_path)
 
     def tearDown(self):
         if os.path.exists(self.__test_path):
@@ -74,4 +83,22 @@ class ExportTest(unittest.TestCase):
                                     )
         output_bt = output_ge.get_region_bed_table()
         self.assertTrue((output_bt.to_dataframe().values == self.test_bt.to_dataframe().iloc[:10].values).all())
+
+    def test_main_name_replaced_ct(self):
+        output_path = os.path.join(self.__test_path, "name_replaced_output.csv")
+        args = argparse.Namespace(
+            subcommand="export",
+            export_type="name_replaced_ct",
+            inpath=self.__test_count_table_path,
+            old_index_list=self.__old_index_list_path,
+            new_index_list=self.__new_index_list_path,
+            opath=output_path,
+        )
+
+        CountTableExport.main(args)
+
+        output_df = CountTableIO.read_input_df(output_path)
+        
+        self.assertEqual(output_df.index[12], 'renamed_' + self.test_count_table.index[12])
+
 
